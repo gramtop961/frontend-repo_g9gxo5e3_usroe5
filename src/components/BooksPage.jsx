@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import HadithCard from './HadithCard';
+import SahihBukhariPage from './SahihBukhariPage';
 
 // Minimal client-side router using hash (#/hadith/:book)
 function useHashRoute() {
@@ -12,29 +13,8 @@ function useHashRoute() {
   return hash.replace(/^#/, '');
 }
 
-// Example dataset: Full book (Riyad as-Salihin) first 10 hadiths to avoid huge payload
-// In a real app, this will be fetched from backend pagination
+// Demo dataset for non-Bukhari books to keep the bundle small.
 const DATA = {
-  'sahih-bukhari': {
-    title: 'Sahih al-Bukhari',
-    items: [
-      {
-        number: 1,
-        ref: 'Bukhari 1: Intentions',
-        ar: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ',
-        ur: 'اعمال کا دار و مدار نیتوں پر ہے۔',
-        en: 'Actions are but by intentions.',
-        note: 'This hadith sets the foundation of sincerity in Islam.'
-      },
-      {
-        number: 2,
-        ref: 'Bukhari 2: Islam, Iman, Ihsan',
-        ar: 'الإِسْلاَمُ بُنِيَ عَلَى خَمْسٍ',
-        ur: 'اسلام پانچ چیزوں پر قائم ہے۔',
-        en: 'Islam is built upon five (pillars).'
-      }
-    ]
-  },
   'sahih-muslim': {
     title: 'Sahih Muslim',
     items: [
@@ -65,7 +45,7 @@ const DATA = {
       {
         number: 4940,
         ref: 'Abu Dawood 4940: Character',
-        ar: 'إِنَّ مِنْ خِيَارِكُمْ أَحْسَنَكُمْ أَخْلَاقًا',
+        ar: 'إِنَّ مِنْ خِيَارِكُمْ أَحْسَنَكُمْ أَخْلَاقًا',
         ur: 'تم میں سے بہترین وہ ہے جس کے اخلاق اچھے ہوں۔',
         en: 'The best among you are those with the best character.'
       }
@@ -77,7 +57,7 @@ const DATA = {
       {
         number: 4998,
         ref: 'an‑Nasa’i 4998: Trust',
-        ar: 'أَدِّ الأَمَانَةَ إِلَى مَنِ ائْتَمَنَكَ',
+        ar: 'أَدِّ الأَمَانَةَ إِلَى مَنِ ائْتَمَنَكَ',
         ur: 'امانت اس تک پہنچاؤ جس نے تم پر اعتماد کیا۔',
         en: 'Render the trust to the one who entrusted you.'
       }
@@ -89,7 +69,7 @@ const DATA = {
       {
         number: 4210,
         ref: 'Ibn Majah 4210: Truthfulness',
-        ar: 'عَلَيْكُمْ بِالصِّدْقِ',
+        ar: 'عَلَيْكُمْ بِالصِّدْقِ',
         ur: 'تم پر سچ لازم ہے۔',
         en: 'Adhere to truthfulness.'
       }
@@ -101,6 +81,11 @@ export default function BooksPage() {
   const route = useHashRoute();
   const match = route.match(/^\/hadith\/+([^/?#]+)/);
   const bookId = match ? decodeURIComponent(match[1]) : null;
+
+  // Special full-page for Sahih al-Bukhari, wired for 7,563 hadiths with pagination
+  if (bookId === 'sahih-bukhari') {
+    return <SahihBukhariPage />;
+  }
 
   const book = bookId ? DATA[bookId] : null;
 
