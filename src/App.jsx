@@ -1,28 +1,56 @@
-import { useState } from 'react'
+import React, { useMemo, useState } from 'react';
+import Header from './components/Header';
+import Hero from './components/Hero';
+import BooksGrid from './components/BooksGrid';
+import AISolver from './components/AISolver';
+import Footer from './components/Footer';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [language, setLanguage] = useState('en');
+  const [query, setQuery] = useState('');
+
+  // Basic SEO tags injection
+  useMemo(() => {
+    const title = 'Noor Al‑Hadith — Authentic Hadith in Arabic, Urdu and English';
+    document.title = title;
+    const metaDesc = document.querySelector('meta[name="description"]') || (() => { const m = document.createElement('meta'); m.setAttribute('name', 'description'); document.head.appendChild(m); return m; })();
+    metaDesc.setAttribute('content', 'Explore authentic hadith with Arabic text and translations in Urdu and English. SEO‑friendly, multilingual, and mobile‑first.');
+
+    const canonical = document.querySelector('link[rel="canonical"]') || (() => { const c = document.createElement('link'); c.setAttribute('rel', 'canonical'); document.head.appendChild(c); return c; })();
+    canonical.setAttribute('href', window.location.href);
+
+    const ld = {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Noor Al‑Hadith',
+      url: window.location.origin,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${window.location.origin}/?q={search_term_string}`,
+        'query-input': 'required name=search_term_string'
+      }
+    };
+    const existing = document.getElementById('ld-json');
+    const script = existing || (() => { const s = document.createElement('script'); s.type = 'application/ld+json'; s.id='ld-json'; document.head.appendChild(s); return s; })();
+    script.text = JSON.stringify(ld);
+  }, []);
+
+  const onSearch = () => {
+    const aiEl = document.getElementById('ai');
+    if (aiEl) aiEl.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
-        </div>
+    <div className="min-h-screen bg-[url('https://images.unsplash.com/photo-1629380321590-3b3f75d66dec?ixid=M3w3OTkxMTl8MHwxfHNlYXJjaHwxfHxjZXJhbWljJTIwcG90dGVyeSUyMGhhbmRtYWRlfGVufDB8MHx8fDE3NjIzNTg2NzV8MA&ixlib=rb-4.1.0&w=1600&auto=format&fit=crop&q=80')] bg-cover bg-fixed bg-center">
+      <div className="min-h-screen backdrop-blur-sm bg-emerald-950/70 text-emerald-50">
+        <Header language={language} onChangeLanguage={setLanguage} />
+        <main>
+          <Hero query={query} setQuery={setQuery} onSearch={onSearch} />
+          <BooksGrid />
+          <AISolver query={query} setQuery={setQuery} />
+        </main>
+        <Footer />
       </div>
     </div>
-  )
+  );
 }
-
-export default App
