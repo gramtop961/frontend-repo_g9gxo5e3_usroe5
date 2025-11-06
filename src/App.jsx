@@ -1,13 +1,25 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import BooksGrid from './components/BooksGrid';
 import AISolver from './components/AISolver';
 import Footer from './components/Footer';
+import BooksPage from './components/BooksPage';
+
+function useHashRoute() {
+  const [hash, setHash] = useState(window.location.hash);
+  useEffect(() => {
+    const onHash = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+  return hash.replace(/^#/, '');
+}
 
 export default function App() {
   const [language, setLanguage] = useState('en');
   const [query, setQuery] = useState('');
+  const route = useHashRoute();
 
   // Basic SEO tags injection
   useMemo(() => {
@@ -40,14 +52,22 @@ export default function App() {
     if (aiEl) aiEl.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const isCollection = /^\/hadith\//.test(route);
+
   return (
     <div className="min-h-screen bg-[url('https://images.unsplash.com/photo-1629380321590-3b3f75d66dec?ixid=M3w3OTkxMTl8MHwxfHNlYXJjaHwxfHxjZXJhbWljJTIwcG90dGVyeSUyMGhhbmRtYWRlfGVufDB8MHx8fDE3NjIzNTg2NzV8MA&ixlib=rb-4.1.0&w=1600&auto=format&fit=crop&q=80')] bg-cover bg-fixed bg-center">
       <div className="min-h-screen backdrop-blur-sm bg-emerald-950/70 text-emerald-50">
         <Header language={language} onChangeLanguage={setLanguage} />
         <main>
-          <Hero query={query} setQuery={setQuery} onSearch={onSearch} />
-          <BooksGrid />
-          <AISolver query={query} setQuery={setQuery} />
+          {isCollection ? (
+            <BooksPage />
+          ) : (
+            <>
+              <Hero query={query} setQuery={setQuery} onSearch={onSearch} />
+              <BooksGrid />
+              <AISolver query={query} setQuery={setQuery} />
+            </>
+          )}
         </main>
         <Footer />
       </div>
